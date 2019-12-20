@@ -1,1 +1,1 @@
-# human-footprint
+# Human Footprint
