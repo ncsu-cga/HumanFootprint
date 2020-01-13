@@ -1057,17 +1057,17 @@ require([
         }
     }
     
-    function colorSchemeActive(id, colorscheme){
-      $(id).addClass('active');
-      let childs = e.target.parentNode.childNodes;
-      childs.forEach(d => {
-        if(d.attributes.fill){
-          colorscheme.push(d.attributes.fill.value);
-        }
-      });
-      customize.colorScheme = colorscheme;
-      console.log(customize.colorScheme);
-    }
+    // function colorSchemeActive(id, colorscheme){
+    //   $(id).addClass('active');
+    //   let childs = e.target.parentNode.childNodes;
+    //   childs.forEach(d => {
+    //     if(d.attributes.fill){
+    //       colorscheme.push(d.attributes.fill.value);
+    //     }
+    //   });
+    //   customize.colorScheme = colorscheme;
+    //   console.log(customize.colorScheme);
+    // }
     
     /*========== Map/View/Layers ========== */
     function createLayers(){
