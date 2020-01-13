@@ -81,7 +81,6 @@ const config = {
   },
   "table": {
     "columns": [
-      {"name": "Field", "data": "fieldName"},
       {"name": "Description", "data": "description"}
     ]
   }
