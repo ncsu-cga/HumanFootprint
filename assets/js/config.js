@@ -81,7 +81,7 @@ const config = {
   },
   "table": {
     "columns": [
-      {"name": "Description", "data": "description"}
+      {"name": "Select metric", "data": "description"}
     ]
   }
 };
