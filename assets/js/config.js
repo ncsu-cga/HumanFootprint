@@ -56,7 +56,7 @@ const config = {
     } 
   },
   "census_block": {
-    "url": "https://services1.arcgis.com/aT1T0pU1ZdpuDk1t/arcgis/rest/services/Cont_US_Block_Groups_2010_1990/FeatureServer/0",
+    "url": "https://services1.arcgis.com/aT1T0pU1ZdpuDk1t/arcgis/rest/services/Cont_US_Block_Groups_2010_2000/FeatureServer/0",
     "title": "Census Block",
     "layerid": "CensusBlockLyr",
     "symbolflag": "false",

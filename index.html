@@ -91,62 +91,83 @@
 
       <div id="query-state-content" class="tab-content" style="padding-top: 30px; padding-bottom: 20px;">
           <div class="tab-pane fade active show" id="query-state">
-            <!--Select Location-->
+            <!--Select by Location-->
             <div class="container">
-              <div class="row">
-                <div class="col-5 form-group">
-                  <label for="dd-states" class="col-sm-12 control-label noPaddingLeft">1. Select state:</label>
+              <div class="row" style="padding-bottom: 15px;">
+                <div class="col-sm-10" style='padding: 0 0 0 15px;'>
                   <select id="dd-states" style="margin-top: 5px;"></select>
-                  </div>
-                  
-                  <div class="col-5 form-group">
-                    <label for="dd-counties" class="col-sm-12 control-label noPaddingLeft">2. Select county:</label>
-                    <select id="dd-counties" style="margin-top: 5px;"></select>
-                  </div>
-  
-                  <div class="col-2 form-group">
-                    <button id="btn-getBlock" type="button" class="btn btn-primary" style="margin-top: 15px;white-space: normal;padding-right: 0; padding-left: 0;">
-                      3. Load Data
-                    </button>
-                  </div> 
-                </div><!--./row--> 
+                </div>
+                <div class="col-sm-2" style='padding: 0 15px 0 15px;'>
+                  <button id="btn-state-reset" class="btn btn-primary btn-icon btn-round reset-button"
+                    data-toggle="tooltip" data-trigger="hover" data-placement="top" title="Reset states"
+                    style="margin: 5px 0">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </div>
+              </div>
+            
+              <sdiv class="row">
+                <div class="col-sm-10" style='padding: 0 0 0 15px;'>
+                  <select id="dd-counties" style="margin-top: 5px;"></select>
+                </div>
+                <div class="col-sm-2" style='padding: 0 15px 0 15px;'>
+                  <button id="btn-county-reset" class="btn btn-primary btn-icon btn-round reset-button"
+                    data-toggle="tooltip" data-trigger="hover" data-placement="top" title="Reset states"
+                    style="margin: 5px 0">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </div>
+              </sdiv>
 
-                <div class="row">
-                  <div id="block-count-one" class="censusblock-num"></div>
-                </div>                
-
+              <div class="row">
+                <div id="block-count-one" class="censusblock-num"></div>
+              </div>
             </div>
             <!-- /container -->
-        </div>
+          </div>
 
         <!-- Select by Megaregion -->
         <div class="tab-pane fade" id="query-megaregion">
           <div class="container">
-              <div class="row">
-                <div class="col-5 form-group">
-                  <label for="dd-megaregion" class="col-sm-12 control-label noPaddingLeft">1. Select megaregion:</label>
-                  <select id="dd-megaregion" style="margin-top: 5px;"></select>
+              <div class="row" style="padding-bottom: 15px;">
+                <div class="col-sm-10" style='padding: 0 0 0 15px;'>
+                 <select id="dd-megaregion" style="margin-top: 5px;"></select>
+                </div>
+                <div class="col-sm-2" style='padding: 0 15px 0 15px;'>
+                  <button id="btn-megaregion-reset" class="btn btn-primary btn-icon btn-round reset-button"
+                    data-toggle="tooltip" data-trigger="hover" data-placement="top" title="Reset megaregion"
+                    style="margin: 5px 0">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </div>
+              </div><!--./row-->
+
+              <div class="row" style="padding-bottom: 15px;">
+                <div class="col-sm-10" style='padding: 0 0 0 15px;'>
+                 <select id="dd-megastates" style="margin-top: 5px;"></select>
+                </div>
+                <div class="col-sm-2" style='padding: 0 15px 0 15px;'>
+                  <button id="btn-megastate-reset" class="btn btn-primary btn-icon btn-round reset-button"
+                    data-toggle="tooltip" data-trigger="hover" data-placement="top" title="Reset megaregion"
+                    style="margin: 5px 0">
+                    <i class="fas fa-redo"></i>
+                  </button>
+                </div>
+              </div><!--./row-->
+
+              <div class="row" style="padding-bottom: 15px;">
+                <div class="col-sm-10" style='padding: 0 0 0 15px;'>
+                 <select id="dd-megacounties" style="margin-top: 5px;"></select>
+                </div>
+                <div class="col-sm-2" style='padding: 0 15px 0 15px;'>
+                  <button id="btn-megacounty-reset" class="btn btn-primary btn-icon btn-round reset-button"
+                    data-toggle="tooltip" data-trigger="hover" data-placement="top" title="Reset megaregion"
+                    style="margin: 5px 0">
+                    <i class="fas fa-redo"></i>
+                  </button>
                 </div>
               </div><!--./row-->
           
-              <div class="row">
-                <div class="col-5 form-group">
-                  <label for="dd-megastates" class="col-sm-12 control-label noPaddingLeft">2. State:</label>
-                  <select id="dd-megastates" style="margin-top: 5px;"></select>
-                </div>
-    
-                <div class="col-5 form-group">
-                  <label for="dd-megacounties" class="col-sm-12 control-label noPaddingLeft">3. County:</label>
-                  <select id="dd-megacounties" style="margin-top: 5px;"></select>
-                </div>
-    
-                <div class="col-2 form-group text-center">
-                  <button id="btn-getMegaBlock" type="button" class="btn btn-primary float-right" style="margin-top: 15px;white-space: normal;padding-right: 0; padding-left: 0;">
-                    4. Load Data
-                  </button>
-                </div>
-              </div><!--row-->
-
               <div class="row">
                 <div id="block-count-two" class="censusblock-num"></div>
               </div>
@@ -181,7 +202,7 @@
                     <label for="select-category" class="col-sm-12 control-label">3. Select category:</label>
                     <div class=col-12>  
                       <select required id="select-category">
-                        <option value="Housing">Housing</option>
+                        <option value="Housing Density">Housing Density</option>
                         <option value="Impervious Surface">Impervious Surface</option>
                         <option value="Land-Use Efficiency">Land-Use Efficiency</option>
                         <option value="Per Capita Consumption">Per Capita Consumption</option>
