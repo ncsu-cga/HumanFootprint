@@ -714,54 +714,13 @@ require([
     
     /*========== Census Block Group data mapping by field ========== */
     function setThematicMapRenderer(args) {
-      // If field type is numeric otherwise use unique class renderer
-      let fieldsException = ['HDC1Y90', 'HDC1Y00', 'HDC1Y10',
-      'HDC2Y90', 'HDC2Y00', 'HDC2Y10'],
-      colorExcep = ['#e1e1e1', '#9c9c9c', '#686868', '#000000'],
-      data = [{value: 1, label: 'Rural'}, {value: 2, label: 'Exurban'}, 
-      {value: 3, label: 'Suburban'}, {value: 4, label: 'Urban'}],
-      renderer, popupTemplate;
-      let county = sessionStorage.getItem('county');
-      let countyFip = sessionStorage.getItem('countyFip');
-      let state = sessionStorage.getItem('state');
-
+      let renderer, popupTemplate,
+      county = sessionStorage.getItem('county'),
+      countyFip = sessionStorage.getItem('countyFip'),
+      state = sessionStorage.getItem('state'),
       popupTitle = `<b>${county} (${countyFip}), ${state}</b>`;
-
-      if (args.dataType != 'Text') {
-        if (fieldsException.includes(args.fieldName)) {
-          let uniquevalueinfo = [],
-          popupTemplate = {
-            title: popupTitle,
-            content: `<b>ID:</b> {GEOID10}</br>
-            <b>${args.fieldName}:</b> {${args.fieldName}}</br>
-            (<i>1=Rural; 2=Exurban; 3=Suburban; 4=Urban</i>)`
-          };
-
-          censusblockLyr.popupTemplate = popupTemplate;
-          data.forEach((d, i) => {
-            let symbol = {
-              type: 'simple-fill',
-              color: colorExcep[i],
-              style: 'solid',
-              outline: {
-                width: 0.5,
-                color: 'white'                
-              }
-            };
-
-            uniquevalueinfo.push({
-              value: d.value,
-              symbol: symbol,
-              label: d.label
-            });
-          });
-
-          renderer = new UniqueValueRenderer({
-            field: args.fieldName
-          });
-          renderer.uniqueValueInfos = uniquevalueinfo;
-          censusblockLyr.renderer = renderer;
-        } else {
+      
+        if (args.dataType != 'Text'){
           ClassBreaks({
             layer: censusblockLyr,
             field: args.fieldName,
@@ -815,38 +774,38 @@ require([
             renderer.classBreakInfos = classbreakinfo;
             censusblockLyr.renderer = renderer;
           });
-        }
-      } else {
-        let uniquevalueinfo = [],
-        popupTemplate = {
-          title: popupTitle,
-          content: `<b>ID:</b> {GEOID10}</br>
-          <b>${args.fieldName}:</b> {${args.fieldName}}`
-        };
-        censusblockLyr.popupTemplate = popupTemplate;
-        uniquevalue.forEach(d => {
-          let symbol = {
-            type: 'simple-fill', 
-            color: d.rgba,
-            style: 'solid',
-            outline: {
-              width: 0.5,
-              color: 'white'                
-            }
+        } else {
+          let uniquevalueinfo = [],
+          popupTemplate = {
+            title: popupTitle,
+            content: `<b>ID:</b> {GEOID10}</br>
+            <b>${args.fieldName}:</b> {${args.fieldName}}`
           };
+          censusblockLyr.popupTemplate = popupTemplate;
+          console.log(uniquevalue[args.fieldName]);
+          uniquevalue[args.fieldName].forEach(d => {
+            let symbol = {
+              type: 'simple-fill', 
+              color: d.rgba,
+              style: 'solid',
+              outline: {
+                width: 0.5,
+                color: 'white'                
+              }
+            };
 
-          uniquevalueinfo.push({
-            value: d.value,
-            symbol: symbol,
-            label: d.value
+            uniquevalueinfo.push({
+              value: d.value,
+              symbol: symbol,
+              label: d.value
+            });
           });
-        });
 
-        renderer = new UniqueValueRenderer({
-          field: args.fieldName
-        });
-        renderer.uniqueValueInfos = uniquevalueinfo;
-        censusblockLyr.renderer = renderer;
+          renderer = new UniqueValueRenderer({
+            field: args.fieldName
+          });
+          renderer.uniqueValueInfos = uniquevalueinfo;
+          censusblockLyr.renderer = renderer;
       }
 
       urbanLyr.visible = false;
