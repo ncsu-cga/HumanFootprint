@@ -31,14 +31,14 @@ const uniquevalue = {
     {"value": "Medium density to Medium density", "rgba": [230, 85, 13, 1], "hex": "#e6550d"},
     {"value": "Medium density to Low density", "rgba": [253, 141, 60, 1], "hex": "#fd8d3c"},
     {"value": "Medium density to Very low density", "rgba": [253, 190, 133, 1], "hex": "#fdbe85"},
-    {"value": "Low density to High density", "rgba": [106, 81, 163, 1], "hex": "#6A51A3"},
-    {"value": "Low density to Medium density", "rgba": [104, 104, 104, 1], "hex": "#686868"},
-    {"value": "Low density to Low density", "rgba": [156, 156, 156, 1], "hex": "#9C9C9C"},
-    {"value": "Low density to Very low density", "rgba": [116, 196, 118, 1], "hex": "#74C476"},
-    {"value": "Very low density to High density", "rgba": [203, 201, 226, 1], "hex": "#008000"},
-    {"value": "Very low density to Medium density", "rgba": [253, 190, 133, 1], "hex": "#FDBE85"},
-    {"value": "Very low density to Low density", "rgba": [189, 215, 231, 1], "hex": "#BDD7E7"},
-    {"value": "Very low density to Very low density", "rgba": [225, 225, 225, 1], "hex": "#E1E1E1"}
+    {"value": "Low density to High density", "rgba": [84, 39, 143, 1], "hex": "#54278f"},
+    {"value": "Low density to Medium density", "rgba": [117, 107, 177, 1], "hex": "#756bb1"},
+    {"value": "Low density to Low density", "rgba": [158, 154, 200, 1], "hex": "#9e9ac8"},
+    {"value": "Low density to Very low density", "rgba": [203, 201, 226, 1], "hex": "#cbc9e2"},
+    {"value": "Very low density to High density", "rgba": [0, 109, 44, 1], "hex": "#006d2c"},
+    {"value": "Very low density to Medium density", "rgba": [49, 163, 84, 1], "hex": "#31a354"},
+    {"value": "Very low density to Low density", "rgba": [116, 196, 118, 1], "hex": "#74c476"},
+    {"value": "Very low density to Very low density", "rgba": [186, 228, 179, 1], "hex": "#bae4b3"}
   ]
 }
 
