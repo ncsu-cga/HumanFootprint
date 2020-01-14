@@ -1,26 +1,26 @@
 const uniquevalue = {
   "LUEFFCLS": [
-    {"value": "Efficient", "rgba": [0, 0, 0, 1], "hex": "#000000"},
-    {"value": "Inefficient", "rgba": [217, 71, 1, 1], "hex": "#D94701"},
-    {"value": "N/A to 0 > POP2000 < 1", "rgba": [33, 113, 181, 1], "hex": "#2171B5"},
-    {"value": "N/A to Low density", "rgba": [35, 139, 69, 1], "hex": "#238B45"},
-    {"value": "N/A to Very low density", "rgba": [106, 81, 163, 1], "hex": "#6A51A3"},
-    {"value": "N/A to Zero IMP in 2000", "rgba": [104, 104, 104, 1], "hex": "#686868"},
-    {"value": "N/A to Zero IMP in 2010", "rgba": [107, 174, 214, 1], "hex": "#6BAED6"},
-    {"value": "N/A to Zero POP in 2000", "rgba": [116, 196, 118, 1], "hex": "#74C476"},
-    {"value": "N/A to Zero POP in 2010", "rgba": [158, 154, 200, 1], "hex": "#9E9AC8"}
+    {"value": "Efficient", "rgba": [0, 132, 168, 1], "hex": "#0582A8"},
+    {"value": "Inefficient", "rgba": [252, 141, 89, 1], "hex": "#FC8D59"},
+    {"value": "N/A to 0 > POP2000 < 1", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Low density", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Very low density", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Zero IMP in 2000", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Zero IMP in 2010", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Zero POP in 2000", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"},
+    {"value": "N/A to Zero POP in 2010", "rgba": [240, 240, 240, 1], "hex": "#F0F0F0"}
   ],
   "HDCLS00": [
     {"value": "High density", "rgba": [0, 0, 0, 1], "hex": "#000000"},
-    {"value": "Medium density", "rgba": [217, 71, 1, 1], "hex": "#D94701"},
-    {"value": "Low density", "rgba": [33, 113, 181, 1], "hex": "#2171B5"},
-    {"value": "Very low density", "rgba": [35, 139, 69, 1], "hex": "#238B45"}
+    {"value": "Medium density", "rgba": [104, 104, 104, 1], "hex": "#686868"},
+    {"value": "Low density", "rgba": [156, 156, 156, 1], "hex": "#9C9C9C"},
+    {"value": "Very low density", "rgba": [225, 225, 225, 1], "hex": "#E1E1E1"}
   ],
   "HDCLS10": [
     {"value": "High density", "rgba": [0, 0, 0, 1], "hex": "#000000"},
-    {"value": "Medium density", "rgba": [217, 71, 1, 1], "hex": "#D94701"},
-    {"value": "Low density", "rgba": [33, 113, 181, 1], "hex": "#2171B5"},
-    {"value": "Very low density", "rgba": [35, 139, 69, 1], "hex": "#238B45"}
+    {"value": "Medium density", "rgba": [104, 104, 104, 1], "hex": "#686868"},
+    {"value": "Low density", "rgba": [156, 156, 156, 1], "hex": "#9C9C9C"},
+    {"value": "Very low density", "rgba": [225, 225, 225, 1], "hex": "#E1E1E1"}
   ],
   "HDTRAN0010": [
     {"value": "High density to High density", "rgba": [0, 0, 0, 1], "hex": "#000000"},
