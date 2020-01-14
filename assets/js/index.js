@@ -233,9 +233,6 @@ require([
 				let selected = $ddMegaregion.find(":selected").text(),
         extent = getMegaregionExtent(selected, megaregion_data);
         sessionStorage.setItem('megaregion', selected);
-
-        alert(selected);
-
         goToExtent(extent);
         setMegaStateDropdown(selected);
         $ddMegaCounties.html('');
@@ -259,7 +256,6 @@ require([
         state = selected.text(),
         stateFip = selected.val(),
         expression = `STCNTYFP10 LIKE '${stateFip}%'`;
-        alert(state)
         sessionStorage.setItem('state', state);
         sessionStorage.setItem('stateFip', stateFip);
 				if (selected != null){ 
@@ -341,7 +337,6 @@ require([
       $btnMegastateReset.on('click', () => {
         //setMegaregionDropdown();
         let megaregion = sessionStorage.getItem('megaregion');
-        alert('reset' + megaregion);
         $ddMegaStates.html('');
         $ddMegaStates[0].sumo.reload();
         setMegaStateDropdown(megaregion);
