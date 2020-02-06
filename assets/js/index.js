@@ -104,14 +104,13 @@ require([
       view.popup.close();
       stateTabBackToPlaceholder();
       megaregionTabBackToPlaceholder();
-
+      sessionStorage.clear();
       setStateDropdown();
       setMegaregionDropdown();
       setNumClassesDropdown(7, defaultMapSettings.numClasses);
+      setDefaultCategory();
       removeLegend();
       removeTable();
-      setDefaultCategory();
-
       $method[0].sumo.selectItem('natural-breaks');
 			$('.nav-tabs a[href="#fields"]').tab('show');
       $colorTab.attr('class', 'nav-link disabled');
@@ -237,7 +236,6 @@ require([
         setMegaStateDropdown(selected);
         $ddMegaCounties.html('');
         $ddMegaCounties[0].sumo.reload();
-        removeLegend();
         removeTable();
         setDefaultCategory();
         customize = $.extend(true, {}, defaultMapSettings);
@@ -249,6 +247,7 @@ require([
         statesLyr.visible = true;
         view.graphics.removeAll();
         hideFieldDesign();
+        removeLegend();
       });
 
 			$ddMegaStates.on('change', () => {
@@ -292,14 +291,15 @@ require([
 
 			$selectCategory.on('change', () => { 
         let category = $selectCategory.find(":selected").text();
-        sessionStorage.setItem('category', category);
-				// userselect.category = $selectCategory.find(":selected").text();
+        let field = '#' + config.default_censusblock_data[category];
+
 				if (category != 'Select category'){
 						if ('#table-data'.length) {
 							$('#table-data').remove();
-            }
+            } 
             tabulate(censusblockinfo[0][category], config.table.columns);
-				}
+            $(field).trigger('click');
+        }
 			});
       
 			
@@ -464,7 +464,7 @@ require([
 
 
     function setDefaultCategory() {
-			$('#select-category option[value=""]').removeAttr('disabled');
+      $('#select-category option[value=""]').removeAttr('disabled');
 			$selectCategory[0].sumo.selectItem(customize.category);
 			$('#select-category option[value=""]').attr('disabled', 'disabled');
     }
@@ -522,7 +522,7 @@ require([
       view.popup.close();
       removeTable();
       tabulate(censusblockinfo[0][customize.category], config.table.columns);
-      getCensusBlock();
+      //getCensusBlock();
       // hideFieldDesign();
     }
 
@@ -820,7 +820,7 @@ require([
           layer: censusblockLyr,
           title: 'Census Block Group:'
         }]
-      });
+      }, 'legendDiv');
       view.ui.add(legend, 'bottom-left');
 
       interact(legend.container).draggable({
@@ -884,12 +884,16 @@ require([
 			rows = tbody.selectAll('tr')
 				.data(data)
 				.enter()
-				.append('tr')
+        .append('tr')
+        .attr('id', d => {
+          return d.fieldName;
+        })
 				.attr('data-value', d => {
 					return d.fieldName;
 				})
 				.on('click', function mouseOver(d, i){
-					let selected = $(this).hasClass('highlight');
+          let selected = $(this).hasClass('highlight');
+          console.log($(this));
 					$("#table-data tr").removeClass('highlight');
 					if(!selected)
 						$(this).addClass('highlight');
