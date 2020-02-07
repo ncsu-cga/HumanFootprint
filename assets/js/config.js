@@ -56,7 +56,7 @@ const config = {
     } 
   },
   "census_block": {
-    "url": "https://services1.arcgis.com/aT1T0pU1ZdpuDk1t/arcgis/rest/services/Cont_US_Block_Groups_2010_1990/FeatureServer/0",
+    "url": "https://services1.arcgis.com/aT1T0pU1ZdpuDk1t/arcgis/rest/services/Cont_US_Block_Groups_2010_2000/FeatureServer/0",
     "title": "Census Block",
     "layerid": "CensusBlockLyr",
     "symbolflag": "false",
@@ -81,9 +81,15 @@ const config = {
   },
   "table": {
     "columns": [
-      {"name": "Field", "data": "fieldName"},
-      {"name": "Description", "data": "description"}
+      {"name": "Select metric", "data": "description"}
     ]
+  },
+  "default_censusblock_data": {
+    "Housing Density": "HD2010",
+    "Impervious Surface": "IMPHA10",
+    "Land-Use Efficiency": "LUEFF0010",
+    "Per Capita Consumption": "IMPHAPP10",
+    "Population": "POP2010"
   }
 };
 

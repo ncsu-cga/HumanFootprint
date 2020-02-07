@@ -61,24 +61,14 @@ require([
   'Piedmont Atlantic', 'Southern California', 'Texas Triangle'];
 
     let statesLyr, urbanLyr, megaLyr, countiesLyr, censusblockLyr, 
-    map, view, basemapGallery, bgExpand,userselect, customize, defaultMapSettings,
+    map, view, basemapGallery, bgExpand, customize, defaultMapSettings,
     selectionTab, ionInstance, mainWidth;
 
 
-    userselect = {
-      state: null,
-			stateFip: null,
-			county: null,
-			countyFip: null,
-			category: null,
-      field: null,
-      blockCount: null
-    };
-
     defaultMapSettings = {
       category: 'Per Capita Consumption',
-			fieldName: 'IAP10NPOS',
-			dataType: 'Double',
+			fieldName: 'IMPHAPP10',
+			dataType: 'Float',
 			numClasses: 5,
 			method: 'natural-breaks',
       colorScheme: ["#f0f9e8","#bae4bc","#7bccc4","#43a2ca","#0868ac"],
@@ -86,12 +76,13 @@ require([
     }
     
     selectionTab = '#query-state';
-    
+
     function init(){
       customize = $.extend(true, {}, defaultMapSettings);
       cache();
       bindEvents();
       createLayers();
+      initSettings();
       loading();
       $('#loading').show();
       setTimeout(() => {
@@ -104,32 +95,31 @@ require([
     function initSettings() {
       customize = $.extend(true, {}, defaultMapSettings);
       censusblockLyr.visible = false;
-      view.popup.close();
       countiesLyr.visible = false;
       megaLyr.visible = true;
       urbanLyr.visible = true;
       statesLyr.visible = true;
-      goToExtent(statesLyr.fullExtent);
-      removeLegend();
-      removeTable();
-      setDefaultCategory();
+      censusblockLyr.opacity = 1;
+      ionInstance = $opacity.data('ionRangeSlider');
+      view.popup.close();
+      stateTabBackToPlaceholder();
+      megaregionTabBackToPlaceholder();
+      sessionStorage.clear();
       setStateDropdown();
       setMegaregionDropdown();
- 			$ddCounties.html('');
-			$ddCounties[0].sumo.reload();
-			$ddMegaCounties.html('');
-			$ddMegaCounties[0].sumo.reload();
-			$ddMegaStates.html('');
-      $ddMegaStates[0].sumo.reload();
+      setNumClassesDropdown(7, defaultMapSettings.numClasses);
+      setDefaultCategory();
+      removeLegend();
+      removeTable();
       $method[0].sumo.selectItem('natural-breaks');
 			$('.nav-tabs a[href="#fields"]').tab('show');
       $colorTab.attr('class', 'nav-link disabled');
       $cbNumOne.hide();
       $cbNumTwo.hide();
-      censusblockLyr.opacity = 1;
       $fdPanel.hide();
+      sessionStorage.clear();
+      goToExtent(statesLyr.fullExtent);
     }
-    
 
     function cache() {
       $selectCategory = $('#select-category');
@@ -140,7 +130,7 @@ require([
       $cbNumOne = $('#block-count-one');
       $cbAlert = $('#censusblock-alert');
 			// $countyRefresh = $('#btn-countyRefresh');
-			$getBlock = $('#btn-getBlock');
+			// $getBlock = $('#btn-getBlock');
 			$ddStates = $('#dd-states');
 			$ddCounties = $('#dd-counties');
 			// Megaregion
@@ -161,6 +151,12 @@ require([
       $gcolor = $('#group-border');
       // Modal
       $infoModal = $('#info-modal');
+      // Reset buttons
+      $btnStateReset = $('#btn-state-reset');
+      $btnCountyReset = $('#btn-county-reset');
+      $btnMegaregionReset = $('#btn-megaregion-reset');
+      $btnMegastateReset = $('#btn-megastate-reset');
+      $btnMegacountyReset = $('#btn-megacounty-reset');
     }
     
 
@@ -168,39 +164,108 @@ require([
       /*========== SumoSelect Dropdowns ========== */
       $ddStates.SumoSelect({
         search: true,
-        searchText: 'Search state'
+        searchText: 'Search state',
+        placeholder: 'I. Select state'
       });
       
       $ddCounties.SumoSelect({
         search: true,
-        searchText: 'Select county'
-			});
-			$ddMegaStates.SumoSelect({
-				search: true,
-        searchText: 'Select state'
-			});
-			$ddMegaCounties.SumoSelect({
-				search: true,
-        searchText: 'Select county'
+        searchText: 'Select county',
+        placeholder: 'II. Select county'
       });
 
       $ddMegaregion.SumoSelect({
+        search: true,
+        searchText: 'Select megaregion',
+        placeholder: 'I. Select megaregion'
+      });
+      
+			$ddMegaStates.SumoSelect({
+        search: true,
+        searchText: 'Select state',
+        placeholder: 'II. Select state'
+      });
+      
+			$ddMegaCounties.SumoSelect({
 				search: true,
-        searchText: 'Select megaregion'
+        searchText: 'Select county',
+        placeholder: 'III. Select county'
       });
 
       $selectCategory.SumoSelect();
       $numClasses.SumoSelect();
-      setNumClassesDropdown(7, defaultMapSettings.numClasses);
-			$method.SumoSelect();
+      $method.SumoSelect();
 
-			$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      // TABs
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         let target = $(e.target).attr("href"); // activated tab
         let tabs = ['#query-state', '#query-megaregion'];
 				if (tabs.includes(target)){
           selectionTab = target;
           initSettings();
 				}
+			});
+      // Dropdown events
+      // Tab - State
+      $ddStates.on('change', () => {
+        let selected = $ddStates.find(":selected");
+        let state = selected.text();
+        let stateFip = selected.val();
+
+        sessionStorage.setItem('state', state)
+        sessionStorage.setItem('stateFip', stateFip)
+        let expression = `STCNTYFP10 LIKE '${stateFip}%'`;
+
+				if (selected != null){
+          setCountiesDropdown(state);
+          stateChange(state, expression);
+				}
+      });
+
+      $ddCounties.on('change', () => {
+        let selected =$ddCounties.find(':selected');
+        countyOnChange(selected);
+			});
+      
+      // Tab - Megaregion
+      $ddMegaregion.on('change', () => {
+				let selected = $ddMegaregion.find(":selected").text(),
+        extent = getMegaregionExtent(selected, megaregion_data);
+        sessionStorage.setItem('megaregion', selected);
+        goToExtent(extent);
+        setMegaStateDropdown(selected);
+        $ddMegaCounties.html('');
+        $ddMegaCounties[0].sumo.reload();
+        removeTable();
+        setDefaultCategory();
+        customize = $.extend(true, {}, defaultMapSettings);
+        censusblockLyr.visible = false;
+        view.popup.close();
+        countiesLyr.visible = false;
+        megaLyr.visible = true;
+        urbanLyr.visible = true;
+        statesLyr.visible = true;
+        view.graphics.removeAll();
+        hideFieldDesign();
+        removeLegend();
+      });
+
+			$ddMegaStates.on('change', () => {
+				let selected =$ddMegaStates.find(':selected'),
+        state = selected.text(),
+        stateFip = selected.val(),
+        expression = `STCNTYFP10 LIKE '${stateFip}%'`;
+        sessionStorage.setItem('state', state);
+        sessionStorage.setItem('stateFip', stateFip);
+				if (selected != null){ 
+          setMegaCountiesDropdown(sessionStorage.getItem('megaregion'), state);
+          stateChange(state, expression);
+				}
+      });      
+      
+      $ddMegaCounties.on('change', evt => {
+        let selected = $ddMegaCounties.find(':selected');
+        countyOnChange(selected);
 			});
 
       $infoModal.modal('hide');
@@ -215,46 +280,26 @@ require([
         }
       });
 
-      ionInstance = $opacity.data('ionRangeSlider');
-
-			$getBlock.on('click', () => {
-			  let stateFip = ($ddStates.find(":selected").text()).match(/\((.*)\)/),
-        countyFip = ($ddCounties.find(":selected").text()).match(/\((.*)\)/),
-        stcntyfp = stateFip[1] + countyFip[1],
-        expression = `STCNTYFP10 = '${stcntyfp}'`;
-        getCensusBlockBtnEvt(expression);
-        $fdPanel.show();
-			});
-
-
-			$getMegaBlock.on('click', () => {
-				let stateFip = ($ddMegaStates.find(":selected").text()).match(/\((.*)\)/);
-				let countyFip = ($ddMegaCounties.find(":selected").text()).match(/\((.*)\)/);
-        stcntyfp = stateFip[1] + countyFip[1],
-        expression = `STCNTYFP10 = '${stcntyfp}'`;
-        getCensusBlockBtnEvt(expression);
-        $fdPanel.show();
-			});
-
-
 			$numClasses.on('change', () => {
         customize.numClasses = Number($numClasses.find(':selected').text()); 
         setColorSchemeByCategoryNum(customize.numClasses);
       });
       
-
 			$method.on('change', () => {
 				customize.method = ($method.find(':selected').text()).toLowerCase();
       });
 
 			$selectCategory.on('change', () => { 
-				userselect.category = $selectCategory.find(":selected").text();
-				if (userselect.category != 'Select category'){
+        let category = $selectCategory.find(":selected").text();
+        let field = '#' + config.default_censusblock_data[category];
+
+				if (category != 'Select category'){
 						if ('#table-data'.length) {
 							$('#table-data').remove();
-            }
-            tabulate(censusblockinfo[0][userselect.category], config.table.columns);
-				}
+            } 
+            tabulate(censusblockinfo[0][category], config.table.columns);
+            $(field).trigger('click');
+        }
 			});
       
 			
@@ -273,8 +318,41 @@ require([
         $(customize.colorId).addClass('active');
       });
 
-			setStateDropdown();
-			setMegaregionDropdown();
+      // Reset buttons
+      $btnStateReset.on('click', () => {
+        view.goTo(statesLyr.fullExtent);
+        initSettings();
+      });
+
+      $btnCountyReset.on('click', () => {
+        $ddCounties.html('');
+        $ddCounties[0].sumo.reload();
+        countyReset('State');
+      });
+
+      $btnMegaregionReset.on('click', () => {
+        initSettings();
+      });
+
+      $btnMegastateReset.on('click', () => {
+        //setMegaregionDropdown();
+        let megaregion = sessionStorage.getItem('megaregion');
+        $ddMegaStates.html('');
+        $ddMegaStates[0].sumo.reload();
+        setMegaStateDropdown(megaregion);
+        $ddMegaCounties.html('');
+        $ddMegaCounties[0].sumo.reload();
+        // $ddMegaregion[0].sumo.unSelectItem(megaregion);
+        // $ddMegaregion[0].sumo.selectItem(megaregion);
+        $cbNumTwo.hide();
+      });
+
+      $btnMegacountyReset.on('click', () => {
+        $ddMegaCounties.html('');
+        $ddMegaCounties[0].sumo.reload();
+        countyReset('Megaregion');
+      });
+
     } // bindEvents
     
 /*========== Dropdowns ========== */
@@ -282,78 +360,24 @@ require([
 		function setStateDropdown() {
       $ddStates.html('');
       $ddStates[0].sumo.reload();
-			
-
 
       hpdata.forEach(d => {
-				$ddStates[0].sumo.add(`${d.State} (${d.StateFIP})`);
-			});
-		
-			$ddStates.on('change', evt => {
-				let selected = $ddStates.find(":selected").text(),
-        fip = selected.match(/\((.*)\)/),
-        expression;
-				// Get state and statefip
-				userselect.state = selected.split(' (')[0]
-        userselect.stateFip = fip[1];
-        expression = `STCNTYFP10 LIKE '${userselect.stateFip}%'`;
-
-				if (selected != null){
-          setCountiesDropdown(userselect.state);
-          stateChange(userselect.state, expression);
-				}
-			});
-    }
-    
-		function setMegaStateDropdown(megaregion) {
-			$ddMegaStates.html('');
-			$ddMegaStates[0].sumo.reload();
-			megaregion_data.forEach(d => {
-				if (d.Megaregion == megaregion){
-					d.States.forEach(s => {
-						$ddMegaStates[0].sumo.add(s)
-					});
-				}
-			});
-			$ddMegaStates.on('change', evt => {
-				let selected =$ddMegaStates.find(':selected').text(),
-        fip = selected.match(/\((.*)\)/),
-        expression;
-				userselect.state = selected.split(' (')[0]
-        userselect.stateFip = fip[1];
-        expression = `STCNTYFP10 LIKE '${userselect.stateFip}%'`;
-
-				if (selected != null){ 
-          setMegaCountiesDropdown(megaregion, selected);
-          stateChange(userselect.state, expression);
-				}
-			});
+				$ddStates[0].sumo.add(`${d.StateFIP}`, `${d.State}`);
+      });
     }
 
-
+    // Counties
     function setCountiesDropdown(state) {
 			$ddCounties.html('');
 			$ddCounties[0].sumo.reload();
 			hpdata.forEach(d => {
 				if(d.State == state) {
 					d.Counties.forEach(c => {
-						$ddCounties[0].sumo.add(`${c.County} (${c.CountyFIP})`);
+						$ddCounties[0].sumo.add(`${c.CountyFIP}`, `${c.County}`);
 					});
 				}
 			});
-			
-			$ddCounties.on('change', evt => {
-        let selected =$ddCounties.find(':selected').text(),
-        temp = selected.match(/\((.*)\)/),
-        stcntyfp, expression;
-				userselect.county = selected.split(' (')[0];
-				userselect.countyFip = temp[1];
-        stcntyfp = userselect.stateFip + userselect.countyFip;
-        expression = `STCNTYFP10 = '${stcntyfp}'`;
-        countyChange(userselect.state, userselect.county, expression);
-			});
     }
-
 
     function setMegaregionDropdown() {
       $ddMegaregion.html('');
@@ -362,64 +386,37 @@ require([
       MEGAREGION.forEach(d => {
         $ddMegaregion[0].sumo.add(d);
       });
-
-			$ddMegaregion.on('change', evt => {
-				let selected = $ddMegaregion.find(":selected").text(),
-				states = [],
-        extent = getMegaregionExtent(selected, megaregion_data);
-        goToExtent(extent);
-				hpdata.forEach(d => {
-					if (d.Megaregion.length > 0){
-						d.Megaregion.forEach(i => {
-							if (i == selected){
-								states.push(`${d.State} (${d.StateFIP})`);
-								setMegaStateDropdown(selected);
-							}
-						});
-					}
-        });
-        removeLegend();
-        removeTable();
-        setDefaultCategory();
-        customize = $.extend(true, {}, defaultMapSettings);
-        censusblockLyr.visible = false;
-        view.popup.close();
-        countiesLyr.visible = false;
-        megaLyr.visible = true;
-        urbanLyr.visible = true;
-        statesLyr.visible = true;
-        $ddMegaCounties.html('');
-        $ddMegaCounties[0].sumo.reload();
-        view.graphics.removeAll();
-        hideFieldDesign();
-			});
+    }
+   
+		function setMegaStateDropdown(megaregion) {
+			$ddMegaStates.html('');
+			$ddMegaStates[0].sumo.reload();
+			megaregion_data.forEach(d => {
+				if (d.Megaregion == megaregion){
+					d.States.forEach(s => {
+            let state = s.split(' (')[0];
+            let stateFip = s.match(/\((.*)\)/)[1];
+            console.log(state, stateFip);
+						$ddMegaStates[0].sumo.add(stateFip, state);
+					});
+				}
+      });
     }
 
     function setMegaCountiesDropdown(megaregion, state) {
 			$ddMegaCounties.html('');
 			$ddMegaCounties[0].sumo.reload();
-			name = state.split(' (')[0]
+			
 			hpdata.forEach(d => {
-				if (d.State == name){
+				if (d.State == sessionStorage.getItem('state')){
 					d.Counties.forEach(c => {
 						if (c.Megaregion == megaregion){
-							$ddMegaCounties[0].sumo.add(`${c.County} (${c.CountyFIP})`);
+							$ddMegaCounties[0].sumo.add(c.CountyFIP, c.County);
 						}
 					});
 				}
-			});
-			$ddMegaCounties.on('change', evt => {
-        let selected = $ddMegaCounties.find(':selected').text(),
-        temp = selected.match(/\((.*)\)/),
-        stcntyfp, expression;
-				userselect.county = selected.split(' (')[0];
-				userselect.countyFip = temp[1];
-        stcntyfp = userselect.stateFip + userselect.countyFip;
-        expression = `STCNTYFP10 = '${stcntyfp}'`;
-        countyChange(userselect.state, userselect.county, expression);
-			});
+      });
     }
-
     
     function setNumClassesDropdown(numclasses, selectItem) {
       $numClasses.html('');
@@ -431,9 +428,44 @@ require([
       $numClasses[0].sumo.selectItem(`${selectItem}`);
     }
 
+    function countyOnChange(selected) {
+      let county = selected.text(),
+      countyFip = selected.val(),
+      stcntyfp = sessionStorage.getItem('stateFip') + countyFip,
+      expression = `STCNTYFP10 = '${stcntyfp}'`;
+      sessionStorage.setItem('county', county);
+      sessionStorage.setItem('countyFip', countyFip);
+      countyChange(sessionStorage.getItem('state'), county, expression);
+        // Get Census Block data
+      getCensusBlock(expression);
+      $fdPanel.show();
+    }
+
+    function countyReset(tab) {
+      let state = sessionStorage.getItem('state');
+        
+      if (state != ''){
+        let state = sessionStorage.getItem('state'),
+        stateFip = sessionStorage.getItem('stateFip'),
+        expression = `STCNTYFP10 LIKE '${stateFip}%'`;
+        stateChange(state, expression);
+        if (tab == 'State'){
+          setCountiesDropdown(state);
+        } else if (tab == 'Megaregion'){
+          setMegaCountiesDropdown(sessionStorage.getItem('megaregion'), state);
+        }
+        sessionStorage.setItem('county', '');
+        sessionStorage.setItem('countyFip', '');
+        sessionStorage.setItem('category', defaultMapSettings.category);
+        sessionStorage.setItem('field', defaultMapSettings.field);
+        sessionStorage.setItem('blockCount', '');
+      }
+    }
+
+
     function setDefaultCategory() {
-			$('#select-category option[value=""]').removeAttr('disabled');
-			$selectCategory[0].sumo.selectItem(0);
+      $('#select-category option[value=""]').removeAttr('disabled');
+			$selectCategory[0].sumo.selectItem(customize.category);
 			$('#select-category option[value=""]').attr('disabled', 'disabled');
     }
 
@@ -465,30 +497,72 @@ require([
     function countyChange(state, county, expression) {
       let extent = getCountyExtent(state, county);
       goToExtent(extent);
-      userselect.blockCount = getCensusBlockCount(state, county, hpdata);
+      let blockCount = getCensusBlockCount(state, county, hpdata);
+      sessionStorage.setItem('blockCount', blockCount);
+      // userselect.blockCount = getCensusBlockCount(state, county, hpdata);
       if(selectionTab == '#query-state'){
         $cbNumOne.html('');
-        $cbNumOne.text(`Number of Census block groups: ${userselect.blockCount}`);
+        $cbNumOne.text(`Number of Census block groups: ${blockCount}`);
         $cbNumOne.show();
       }
       else if(selectionTab == '#query-megaregion') {
         $cbNumTwo.html('');
-        $cbNumTwo.text(`Number of Census block groups: ${userselect.blockCount}`);
+        $cbNumTwo.text(`Number of Census block groups: ${blockCount}`);
         $cbNumTwo.show();
       }
       countiesLyr.visible = true;
       countiesLyr.definitionExpression = expression;
 
       removeLegend();
-      removeTable();
+
       setDefaultCategory();
       customize = $.extend(true, {}, defaultMapSettings);
       censusblockLyr.visible = false;
       $method[0].sumo.selectItem('natural-breaks');
       view.popup.close();
-      hideFieldDesign();
+      removeTable();
+      tabulate(censusblockinfo[0][customize.category], config.table.columns);
+      //getCensusBlock();
+      // hideFieldDesign();
     }
 
+    function getCensusBlock(expression) {
+      //$selectCategory[0].sumo.selectItem('Per Capita Consumption');
+      $colorTab.removeClass('disabled');
+      censusblockLyr.definitionExpression = expression
+      censusblockLyr.visible = true;
+
+      setThematicMapRenderer(customize);
+      setTimeout(function waitCB_data(){
+        $(`#data-fields tr[data-value='${customize.fieldName}']`).addClass('highlight');
+      }, 1000);
+      modalShowHide();
+    }
+
+    function stateTabBackToPlaceholder() {
+      $ddStates.html('');
+      $ddStates[0].sumo.reload();
+      $ddCounties.html('');
+      $ddCounties[0].sumo.reload();
+    }
+
+    function megaregionTabBackToPlaceholder() {
+      $ddMegaregion.html('');
+      $ddMegaregion[0].sumo.reload();
+      $ddMegaStates.html('');
+      $ddMegaStates[0].sumo.reload();
+      $ddMegaCounties.html('');
+      $ddMegaCounties[0].sumo.reload();
+    }
+
+    function modalShowHide() {
+      let blockCount = sessionStorage.getItem('blockCount');
+      if(blockCount > 3500){
+        $infoModal.modal('show');
+      } else {
+        $infoModal.modal('hide');
+      }
+    }
 
     function hideFieldDesign(){
       $metricsTab.click();
@@ -501,29 +575,6 @@ require([
     }
 
 
-    function getCensusBlockBtnEvt(expression) {
-      $selectCategory[0].sumo.selectItem('Per Capita Consumption');
-      $colorTab.removeClass('disabled');
-      censusblockLyr.definitionExpression = expression
-      censusblockLyr.visible = true;
-
-      setThematicMapRenderer(customize);
-      setTimeout(function waitCB_data(){
-        $(`#data-fields tr[data-value='${customize.fieldName}']`).addClass('highlight');
-      }, 1000);
-      modalShowHide();
-    }
-
-
-    function modalShowHide() {
-      if(userselect.blockCount > 3500){
-        $infoModal.modal('show');
-      } else {
-        $infoModal.modal('hide');
-      }
-    }
-
-
     /*========== Extent ========== */
     function goToExtent(extent) {
       view.goTo(extent).then(evt => {
@@ -532,7 +583,6 @@ require([
         }
       });
     }
-
 
     function getStateMapExtent(state) {
 			let stateExtent = null;
@@ -659,50 +709,13 @@ require([
     
     /*========== Census Block Group data mapping by field ========== */
     function setThematicMapRenderer(args) {
-      // If field type is numeric otherwise use unique class renderer
-      let fieldsException = ['HDC1Y90', 'HDC1Y00', 'HDC1Y10',
-      'HDC2Y90', 'HDC2Y00', 'HDC2Y10'],
-      colorExcep = ['#e1e1e1', '#9c9c9c', '#686868', '#000000'],
-      data = [{value: 1, label: 'Rural'}, {value: 2, label: 'Exurban'}, 
-      {value: 3, label: 'Suburban'}, {value: 4, label: 'Urban'}],
-      renderer, popupTemplate,
-      popupTitle = `<b>${userselect.county} (${userselect.countyFip}), ${userselect.state}</b>`;
-
-      if (args.dataType != 'Text') {
-        if (fieldsException.includes(args.fieldName)) {
-          let uniquevalueinfo = [],
-          popupTemplate = {
-            title: popupTitle,
-            content: `<b>ID:</b> {GEOID10}</br>
-            <b>${args.fieldName}:</b> {${args.fieldName}}</br>
-            (<i>1=Rural; 2=Exurban; 3=Suburban; 4=Urban</i>)`
-          };
-
-          censusblockLyr.popupTemplate = popupTemplate;
-          data.forEach((d, i) => {
-            let symbol = {
-              type: 'simple-fill',
-              color: colorExcep[i],
-              style: 'solid',
-              outline: {
-                width: 0.5,
-                color: 'white'                
-              }
-            };
-
-            uniquevalueinfo.push({
-              value: d.value,
-              symbol: symbol,
-              label: d.label
-            });
-          });
-
-          renderer = new UniqueValueRenderer({
-            field: args.fieldName
-          });
-          renderer.uniqueValueInfos = uniquevalueinfo;
-          censusblockLyr.renderer = renderer;
-        } else {
+      let renderer, popupTemplate,
+      county = sessionStorage.getItem('county'),
+      countyFip = sessionStorage.getItem('countyFip'),
+      state = sessionStorage.getItem('state'),
+      popupTitle = `<b>${county} (${countyFip}), ${state}</b>`;
+      
+        if (args.dataType != 'Text'){
           ClassBreaks({
             layer: censusblockLyr,
             field: args.fieldName,
@@ -756,38 +769,38 @@ require([
             renderer.classBreakInfos = classbreakinfo;
             censusblockLyr.renderer = renderer;
           });
-        }
-      } else {
-        let uniquevalueinfo = [],
-        popupTemplate = {
-          title: popupTitle,
-          content: `<b>ID:</b> {GEOID10}</br>
-          <b>${args.fieldName}:</b> {${args.fieldName}}`
-        };
-        censusblockLyr.popupTemplate = popupTemplate;
-        uniquevalue.forEach(d => {
-          let symbol = {
-            type: 'simple-fill', 
-            color: d.rgba,
-            style: 'solid',
-            outline: {
-              width: 0.5,
-              color: 'white'                
-            }
+        } else {
+          let uniquevalueinfo = [],
+          popupTemplate = {
+            title: popupTitle,
+            content: `<b>ID:</b> {GEOID10}</br>
+            <b>${args.fieldName}:</b> {${args.fieldName}}`
           };
+          censusblockLyr.popupTemplate = popupTemplate;
+          console.log(uniquevalue[args.fieldName]);
+          uniquevalue[args.fieldName].forEach(d => {
+            let symbol = {
+              type: 'simple-fill', 
+              color: d.rgba,
+              style: 'solid',
+              outline: {
+                width: 0.5,
+                color: 'white'                
+              }
+            };
 
-          uniquevalueinfo.push({
-            value: d.value,
-            symbol: symbol,
-            label: d.value
+            uniquevalueinfo.push({
+              value: d.value,
+              symbol: symbol,
+              label: d.value
+            });
           });
-        });
 
-        renderer = new UniqueValueRenderer({
-          field: args.fieldName
-        });
-        renderer.uniqueValueInfos = uniquevalueinfo;
-        censusblockLyr.renderer = renderer;
+          renderer = new UniqueValueRenderer({
+            field: args.fieldName
+          });
+          renderer.uniqueValueInfos = uniquevalueinfo;
+          censusblockLyr.renderer = renderer;
       }
 
       urbanLyr.visible = false;
@@ -795,7 +808,6 @@ require([
       countiesLyr.visible = false;
       createLegend();
     }
-
 
     /*========== Legend ========== */
     function createLegend(){
@@ -808,7 +820,7 @@ require([
           layer: censusblockLyr,
           title: 'Census Block Group:'
         }]
-      });
+      }, 'legendDiv');
       view.ui.add(legend, 'bottom-left');
 
       interact(legend.container).draggable({
@@ -844,10 +856,10 @@ require([
       view.ui.empty('bottom-left');
     }
 
-
     /*========== Field table ========== */ 
     function tabulate(data, columns) {
       //let ch = $('#content-container').height();
+      console.log(data);
       let table = d3.select('#data-fields')
 			.append('table')
 			.attr('class', 'table table-hover table-bordered')
@@ -872,12 +884,16 @@ require([
 			rows = tbody.selectAll('tr')
 				.data(data)
 				.enter()
-				.append('tr')
+        .append('tr')
+        .attr('id', d => {
+          return d.fieldName;
+        })
 				.attr('data-value', d => {
 					return d.fieldName;
 				})
 				.on('click', function mouseOver(d, i){
-					let selected = $(this).hasClass('highlight');
+          let selected = $(this).hasClass('highlight');
+          console.log($(this));
 					$("#table-data tr").removeClass('highlight');
 					if(!selected)
 						$(this).addClass('highlight');
@@ -999,17 +1015,17 @@ require([
         }
     }
     
-    function colorSchemeActive(id, colorscheme){
-      $(id).addClass('active');
-      let childs = e.target.parentNode.childNodes;
-      childs.forEach(d => {
-        if(d.attributes.fill){
-          colorscheme.push(d.attributes.fill.value);
-        }
-      });
-      customize.colorScheme = colorscheme;
-      console.log(customize.colorScheme);
-    }
+    // function colorSchemeActive(id, colorscheme){
+    //   $(id).addClass('active');
+    //   let childs = e.target.parentNode.childNodes;
+    //   childs.forEach(d => {
+    //     if(d.attributes.fill){
+    //       colorscheme.push(d.attributes.fill.value);
+    //     }
+    //   });
+    //   customize.colorScheme = colorscheme;
+    //   console.log(customize.colorScheme);
+    // }
     
     /*========== Map/View/Layers ========== */
     function createLayers(){
