@@ -61,7 +61,7 @@ require([
   'Piedmont Atlantic', 'Southern California', 'Texas Triangle'];
 
     let statesLyr, urbanLyr, megaLyr, countiesLyr, censusblockLyr, 
-    map, view, basemapGallery, bgExpand,userselect, customize, defaultMapSettings,
+    map, view, basemapGallery, bgExpand, customize, defaultMapSettings,
     selectionTab, ionInstance, mainWidth;
 
 

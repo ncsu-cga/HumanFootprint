@@ -85,7 +85,7 @@ const config = {
     ]
   },
   "default_censusblock_data": {
-    "Housing Density": "HU2010",
+    "Housing Density": "HD2010",
     "Impervious Surface": "IMPHA10",
     "Land-Use Efficiency": "LUEFF0010",
     "Per Capita Consumption": "IMPHAPP10",
